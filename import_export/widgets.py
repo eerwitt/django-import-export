@@ -59,7 +59,7 @@ class DecimalWidget(NumberWidget):
     def clean(self, value):
         if not value:
             return None
-        return Decimal(value)
+        return Decimal(str(value))
 
 
 class CharWidget(Widget):
