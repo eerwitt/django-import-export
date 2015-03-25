@@ -1,10 +1,8 @@
 from __future__ import unicode_literals
 
 from decimal import Decimal
-from datetime import datetime
-from django.utils import datetime_safe
+from django.utils import dateparse
 from django.utils.encoding import smart_text
-from django.conf import settings
 
 try:
     from django.utils.encoding import force_text
@@ -97,34 +95,18 @@ class DateWidget(Widget):
 
     Takes optional ``format`` parameter.
     """
-
-    def __init__(self, format=None):
-        if format is None:
-            if not settings.DATE_INPUT_FORMATS:
-                formats = ("%Y-%m-%d",)
-            else:
-                formats = settings.DATE_INPUT_FORMATS
-        else:
-            formats = (format,)
-        self.formats = formats
-
     def clean(self, value):
         if not value:
             return None
-        for format in self.formats:
-            try:
-                return datetime.strptime(value, format).date()
-            except (ValueError, TypeError):
-                continue
-        raise ValueError("Enter a valid date.")
+        return dateparse.parse_datetime(value)
 
     def render(self, value):
         if not value:
             return ""
         try:
-            return value.strftime(self.formats[0])
+            return value.isoformat()
         except:
-            return datetime_safe.new_date(value).strftime(self.formats[0])
+            return dateparse.parse_datetime(value).isoformat()
 
 
 class DateTimeWidget(Widget):
@@ -133,31 +115,18 @@ class DateTimeWidget(Widget):
 
     Takes optional ``format`` parameter.
     """
-
-    def __init__(self, format=None):
-        if format is None:
-            if not settings.DATETIME_INPUT_FORMATS:
-                formats = ("%Y-%m-%d %H:%M:%S",)
-            else:
-                formats = settings.DATETIME_INPUT_FORMATS
-        else:
-            formats = (format,)
-        self.formats = formats
-
     def clean(self, value):
         if not value:
             return None
-        for format in self.formats:
-            try:
-                return datetime.strptime(value, format)
-            except (ValueError, TypeError):
-                continue
-        raise ValueError("Enter a valid date/time.")
+        return dateparse.parse_datetime(value)
 
     def render(self, value):
         if not value:
             return ""
-        return value.strftime(self.formats[0])
+        try:
+            return value.isoformat()
+        except:
+            return dateparse.parse_datetime(value).isoformat()
 
 
 class ForeignKeyWidget(Widget):
